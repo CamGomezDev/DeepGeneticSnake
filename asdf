@@ -1,0 +1,46 @@
+    // //Up
+    // if (indexOfMax == 1) {
+    //   //This is for the snake to be able to move backwards except if it has length 1 or 2 to suicide to train
+    //   if(snake.pos.length > 2) {
+    //     snake.vel.x = 0;
+    //     snake.vel.y = -scl;
+    //   } else {
+    //     if(snake.vel.y != scl) {
+    //       snake.vel.x = 0;
+    //       snake.vel.y = -scl;
+    //     }
+    //   }
+    // //Down
+    // } else if (indexOfMax == 3) {
+    //   if(snake.pos.length > 2) {
+    //     snake.vel.x = 0;
+    //     snake.vel.y = scl;
+    //   } else {
+    //     if(snake.vel.y != -scl) {
+    //       snake.vel.x = 0;
+    //       snake.vel.y = scl;
+    //     }
+    //   }
+    // //Left
+    // } else if (indexOfMax == 2) {
+    //   if(snake.pos.length > 2) {
+    //     snake.vel.x = -scl;
+    //     snake.vel.y = 0;
+    //   } else {
+    //     if(snake.vel.x != scl) {
+    //       snake.vel.x = -scl;
+    //       snake.vel.y = 0;
+    //     }
+    //   }
+    // //Right
+    // } else if (indexOfMax == 0) {
+    //   if(snake.pos.length > 2) {
+    //     snake.vel.x = scl;
+    //     snake.vel.y = 0;
+    //   } else {
+    //     if(snake.vel.x != -scl) {
+    //       snake.vel.x = scl;
+    //       snake.vel.y = 0;
+    //     }
+    //   }
+    // }
