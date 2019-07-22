@@ -16,23 +16,12 @@ boolean gamePaused;
 boolean renderingAll;
 boolean hideKeys = false;
 
-// int bgcol = color(255,229,202);
-// int gridcol = color(140);
-// int snakecol = color(44,188,178);
-// int foodcol = color(212,78,40);
-// int panelcol = color(225,198,153);
-
+// Colores
 int bgcol = color(29,30,58);
 int gridcol = color(113,112,110);
 int snakecol = color(0,204,102);
 int foodcol = color(255,78,96);
 int panelcol = 175;
-
-// int bgcol = color(255,178,102);
-// int gridcol = color(113,112,110);
-// int snakecol = color(53,168,73);
-// int foodcol = color(95,44,131);
-// int panelcol = 175;
 
 // void settings() {
 //   size(scl*horsqrs + 1 + panelWidth, scl*versqrs + 1);
@@ -40,6 +29,8 @@ int panelcol = 175;
 
 void setup() {
   background(bgcol);
+  /* Nota: es posible que esta pantalla completa solo se vea bien
+     en resoluciones 1364x768 */
   fullScreen();
   pushMatrix();
   translate(50,6);
@@ -53,19 +44,21 @@ void setup() {
   world.renderPanel();
 }
 
+// Ciclo de juego
 void draw() {
   pushMatrix();
-  translate(50,6);
+  translate(50,6); // dibujar la cuadrícula en el centro
   if(!gamePaused) {
     frameRate(fps);
-    world.render();
-    population.update();
-    foods.update();
+    world.render(); // Dibujar cuadrícula
+    population.update(); // Mover todas las serpientes y actualizar generación
+    foods.update(); // Actualizar posición de las comidas
   }
   popMatrix();
-  world.renderPanel();
+  world.renderPanel(); // Dibujar el panel
 }
 
+// Reiniciar todo
 void restart() {
   pushMatrix();
   translate(50,6);
@@ -76,64 +69,9 @@ void restart() {
   popMatrix();
 }
 
-
-class Foods {
-  Food[] foods = new Food[population.gens.get(population.cg).ns];
-
-  Foods() {
-    for (int i = 0; i < foods.length; ++i) {
-      foods[i] = new Food();
-    }
-  }
-
-  void update() {
-    Generation gen = population.gens.get(population.cg);
-    for(int i = 0; i < foods.length; ++i) {
-      foods[i].update(gen.snakes[i]);
-      if(false) {
-        foods[i].render();
-      } else {
-        if(i == population.cshowfI && !gen.showingBestSnake) {
-          foods[i].render();
-        }
-      }
-    }
-  }
-
-  void restart() {
-    for (int i = 0; i < foods.length; ++i) {
-      foods[i] = new Food();
-    }
-  }
-}
-
-class Food {
-  PVector pos = new PVector(floor(random(horsqrs))*scl, floor(random(versqrs))*scl);
-  
-  void render() {
-    fill(foodcol);
-    noStroke();
-    rect(pos.x + 1, pos.y + 1, scl - 1, scl - 1);
-  }
-  
-  void update(Snake snake) {
-    if(snake.wasInFoodPos()) {
-      boolean match = true;
-      while(match) {
-        match = false;
-        pos.x = floor(random(horsqrs))*scl; 
-        pos.y = floor(random(versqrs))*scl;
-        for(int i = 0; i < snake.pos.length; i++) {
-          if(pos.x == snake.pos[i].x && pos.y == snake.pos[i].y) {
-            match = true;
-          }      
-        }
-      }
-    }
-  }
-}
-
-
+/* Botones para interactuar, k: pausar, j: desacelerar, l: acelerar, 
+   r: renderizar todas las serpientes o no, s: disminuir mutRate,
+   d: aumentar mutRate, f: ocultar o no letrero con teclas, q: reiniciar */
 void keyPressed() {
   if(key == 'k') {
     gamePaused = !gamePaused;

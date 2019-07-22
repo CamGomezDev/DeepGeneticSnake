@@ -12,7 +12,7 @@ import java.io.InputStream;
 import java.io.OutputStream; 
 import java.io.IOException; 
 
-public class gensnake extends PApplet {
+public class deepGeneticSnake extends PApplet {
 
 int scl = 28;
 // int scl = 16;
@@ -32,23 +32,12 @@ boolean gamePaused;
 boolean renderingAll;
 boolean hideKeys = false;
 
-// int bgcol = color(255,229,202);
-// int gridcol = color(140);
-// int snakecol = color(44,188,178);
-// int foodcol = color(212,78,40);
-// int panelcol = color(225,198,153);
-
+// Colores
 int bgcol = color(29,30,58);
 int gridcol = color(113,112,110);
 int snakecol = color(0,204,102);
 int foodcol = color(255,78,96);
 int panelcol = 175;
-
-// int bgcol = color(255,178,102);
-// int gridcol = color(113,112,110);
-// int snakecol = color(53,168,73);
-// int foodcol = color(95,44,131);
-// int panelcol = 175;
 
 // void settings() {
 //   size(scl*horsqrs + 1 + panelWidth, scl*versqrs + 1);
@@ -56,6 +45,8 @@ int panelcol = 175;
 
 public void setup() {
   background(bgcol);
+  /* Nota: es posible que esta pantalla completa solo se vea bien
+     en resoluciones 1364x768 */
   
   pushMatrix();
   translate(50,6);
@@ -69,19 +60,21 @@ public void setup() {
   world.renderPanel();
 }
 
+// Ciclo de juego
 public void draw() {
   pushMatrix();
-  translate(50,6);
+  translate(50,6); // dibujar la cuadrícula en el centro
   if(!gamePaused) {
     frameRate(fps);
-    world.render();
-    population.update();
-    foods.update();
+    world.render(); // Dibujar cuadrícula
+    population.update(); // Mover todas las serpientes y actualizar generación
+    foods.update(); // Actualizar posición de las comidas
   }
   popMatrix();
-  world.renderPanel();
+  world.renderPanel(); // Dibujar el panel
 }
 
+// Reiniciar todo
 public void restart() {
   pushMatrix();
   translate(50,6);
@@ -92,64 +85,9 @@ public void restart() {
   popMatrix();
 }
 
-
-class Foods {
-  Food[] foods = new Food[population.gens.get(population.cg).ns];
-
-  Foods() {
-    for (int i = 0; i < foods.length; ++i) {
-      foods[i] = new Food();
-    }
-  }
-
-  public void update() {
-    Generation gen = population.gens.get(population.cg);
-    for(int i = 0; i < foods.length; ++i) {
-      foods[i].update(gen.snakes[i]);
-      if(false) {
-        foods[i].render();
-      } else {
-        if(i == population.cshowfI && !gen.showingBestSnake) {
-          foods[i].render();
-        }
-      }
-    }
-  }
-
-  public void restart() {
-    for (int i = 0; i < foods.length; ++i) {
-      foods[i] = new Food();
-    }
-  }
-}
-
-class Food {
-  PVector pos = new PVector(floor(random(horsqrs))*scl, floor(random(versqrs))*scl);
-  
-  public void render() {
-    fill(foodcol);
-    noStroke();
-    rect(pos.x + 1, pos.y + 1, scl - 1, scl - 1);
-  }
-  
-  public void update(Snake snake) {
-    if(snake.wasInFoodPos()) {
-      boolean match = true;
-      while(match) {
-        match = false;
-        pos.x = floor(random(horsqrs))*scl; 
-        pos.y = floor(random(versqrs))*scl;
-        for(int i = 0; i < snake.pos.length; i++) {
-          if(pos.x == snake.pos[i].x && pos.y == snake.pos[i].y) {
-            match = true;
-          }      
-        }
-      }
-    }
-  }
-}
-
-
+/* Botones para interactuar, k: pausar, j: desacelerar, l: acelerar, 
+   r: renderizar todas las serpientes o no, s: disminuir mutRate,
+   d: aumentar mutRate, f: ocultar o no letrero con teclas, q: reiniciar */
 public void keyPressed() {
   if(key == 'k') {
     gamePaused = !gamePaused;
@@ -218,202 +156,38 @@ class Controller {
   boolean isHuman = false;
   boolean pressedKey = false;
 
-  public float[] frame(Snake snake) {
-    float[] vision = new float[24];
-    //look left
-    float[] tempValues = lookInDirection(new PVector(-scl, 0), snake);
-    vision[0] = tempValues[0];
-    vision[1] = tempValues[1];
-    vision[2] = tempValues[2];
-    //look left/up  
-    tempValues = lookInDirection(new PVector(-scl, -scl), snake);
-    vision[3] = tempValues[0];
-    vision[4] = tempValues[1];
-    vision[5] = tempValues[2];
-    //look up
-    tempValues = lookInDirection(new PVector(0, -scl), snake);
-    vision[6] = tempValues[0];
-    vision[7] = tempValues[1];
-    vision[8] = tempValues[2];
-    //look up/right
-    tempValues = lookInDirection(new PVector(scl, -scl), snake);
-    vision[9] = tempValues[0];
-    vision[10] = tempValues[1];
-    vision[11] = tempValues[2];
-    //look right
-    tempValues = lookInDirection(new PVector(scl, 0), snake);
-    vision[12] = tempValues[0];
-    vision[13] = tempValues[1];
-    vision[14] = tempValues[2];
-    //look right/down
-    tempValues = lookInDirection(new PVector(scl, scl), snake);
-    vision[15] = tempValues[0];
-    vision[16] = tempValues[1];
-    vision[17] = tempValues[2];
-    //look down
-    tempValues = lookInDirection(new PVector(0, scl), snake);
-    vision[18] = tempValues[0];
-    vision[19] = tempValues[1];
-    vision[20] = tempValues[2];
-    //look down/left
-    tempValues = lookInDirection(new PVector(-scl, scl), snake);
-    vision[21] = tempValues[0];
-    vision[22] = tempValues[1];
-    vision[23] = tempValues[2];
-
-    return vision;
-  }
-
-  public float[] frameASD(Snake snake) {
-    float[] vision = new float[32];
-    if(snake.vel.x == scl) {
-      vision[0] = 1;
-    } else if(snake.vel.x == -scl) {
-      vision[0] = -1;
-    } else {
-      vision[0] = 0;
-    }
-    if(snake.vel.y == scl) {
-      vision[1] = 1;
-    } else if(snake.vel.y == -scl) {
-      vision[1] = -1;
-    } else {
-      vision[1] = 0;
-    }
-
-    vision[2] = (snake.pos[0].x/scl)/horsqrs;
-    vision[3] = (snake.pos[0].y/scl)/versqrs;
-
-    if(snake.index == -1) {
-      vision[4] = (population.showoffFood.pos.x/scl)/horsqrs;
-      vision[5] = (population.showoffFood.pos.y/scl)/versqrs;
-    } else {
-      vision[6] = (foods.foods[snake.index].pos.x/scl)/horsqrs;
-      vision[7] = (foods.foods[snake.index].pos.y/scl)/versqrs;
-    }
-    
-    //look left
-    float[] tempValues = lookInDirection(new PVector(-scl, 0), snake);
-    vision[8] = tempValues[0];
-    vision[9] = tempValues[1];
-    vision[10] = tempValues[2];
-    //look left/up  
-    tempValues = lookInDirection(new PVector(-scl, -scl), snake);
-    vision[11] = tempValues[0];
-    vision[12] = tempValues[1];
-    vision[13] = tempValues[2];
-    //look up
-    tempValues = lookInDirection(new PVector(0, -scl), snake);
-    vision[14] = tempValues[0];
-    vision[15] = tempValues[1];
-    vision[16] = tempValues[2];
-    //look up/right
-    tempValues = lookInDirection(new PVector(scl, -scl), snake);
-    vision[17] = tempValues[0];
-    vision[18] = tempValues[1];
-    vision[19] = tempValues[2];
-    //look right
-    tempValues = lookInDirection(new PVector(scl, 0), snake);
-    vision[20] = tempValues[0];
-    vision[21] = tempValues[1];
-    vision[22] = tempValues[2];
-    //look right/down
-    tempValues = lookInDirection(new PVector(scl, scl), snake);
-    vision[23] = tempValues[0];
-    vision[24] = tempValues[1];
-    vision[25] = tempValues[2];
-    //look down
-    tempValues = lookInDirection(new PVector(0, scl), snake);
-    vision[26] = tempValues[0];
-    vision[27] = tempValues[1];
-    vision[28] = tempValues[2];
-    //look down/left
-    tempValues = lookInDirection(new PVector(-scl, scl), snake);
-    vision[29] = tempValues[0];
-    vision[30] = tempValues[1];
-    vision[31] = tempValues[2];
-
-    return vision;
-  }
-
-
-  public float[] lookInDirection(PVector direction, Snake cSnake) {
-
-    //set up a temp array to hold the values that are going to be passed to the main vision array
-    float[] visionInDirection = new float[3];
-
-    PVector position = new PVector(cSnake.pos[0].x, cSnake.pos[0].y);//the position where we are currently looking for food or tail or wall
-    boolean foodIsFound = false;//true if the food has been located in the direction looked
-    boolean tailIsFound = false;//true if the tail has been located in the direction looked 
-    float distance = 0;
-    //move once in the desired direction before starting 
-    position.add(direction);
-    distance +=1;
-
-    //look in the direction until you reach a wall
-    while (!(position.x < 0 || position.y < 0 || position.x >= horsqrs*scl || position.y >= versqrs*scl)) {
-
-      //check for food at the position
-      if(cSnake.index == -1) {
-        if (!foodIsFound && position.x == population.showoffFood.pos.x && position.y == population.showoffFood.pos.y) {
-          visionInDirection[0] = 1;
-          foodIsFound = true; // dont check if food is already found
-        }
-      } else {
-        if (!foodIsFound && position.x == foods.foods[cSnake.index].pos.x && position.y == foods.foods[cSnake.index].pos.y) {
-          visionInDirection[0] = 1;
-          foodIsFound = true; // dont check if food is already found
-        }
-      }
-
-      //check for tail at the position
-      if (!tailIsFound && cSnake.collidedBody(position.x, position.y)) {
-        visionInDirection[1] = 1/distance;
-        tailIsFound = true; // dont check if tail is already found
-      }
-
-      //look further in the direction
-      position.add(direction);
-      distance +=1;
-    }
-
-    //set the distance to the wall
-    visionInDirection[2] = 1/distance;
-
-    return visionInDirection;
-  }
-  
+  // Se elige la jugada y dirección de la serpiente en base a los valores generados por su cerebro
   public void play(Snake snake) {
+    /* Al pasar el frame (la observación) por el cerebro se devuelven
+       los valores correspondientes a las direcciones de movimiento */
     float[] moves = snake.brain.output(frame(snake));
-    // println(frame());
-    // println("===============");
 
+    // Se eligen el valor max. y su correspondiente índice
     float max = moves[0];
+    int indexOfMax = 0;
     for(int i = 1; i < moves.length; i++) {
       if(moves[i] > max) {
         max = moves[i];
-      }
-    }
-    int indexOfMax = 0;
-    for(int i = 0; i < moves.length; i++) {
-      if(moves[i] == max) {
         indexOfMax = i;
       }
     }
     
-    //Up
+    // Se usa el índice para elegir la nueva dirección de la velocidad de la serpiente
+
+    // Hacia arriba
     if (indexOfMax == 1) {
-      //This is for the snake to be able to move backwards except if it has length 1 or 2 to suicide to train
+      /* El doble if es para que la serpiente se pueda devolver y morir chocando
+         su propio cuerpo si tiene un tamaño menor a 2, así aprende a evitarlo. */
       if(snake.pos.length > 2) {
         snake.vel.x = 0;
         snake.vel.y = -scl;
       } else {
-        if(snake.vel.y != scl) {
+        if(snake.vel.y != scl) { // Si no se está moviendo hacia abajo
           snake.vel.x = 0;
-          snake.vel.y = -scl;
+          snake.vel.y = -scl; // ir hacia arriba
         }
       }
-    //Down
+    // Hacia abajo
     } else if (indexOfMax == 3) {
       if(snake.pos.length > 2) {
         snake.vel.x = 0;
@@ -424,7 +198,7 @@ class Controller {
           snake.vel.y = scl;
         }
       }
-    //Left
+    // Hacia la izquierda
     } else if (indexOfMax == 2) {
       if(snake.pos.length > 2) {
         snake.vel.x = -scl;
@@ -435,7 +209,7 @@ class Controller {
           snake.vel.y = 0;
         }
       }
-    //Right
+    // Hacia la derecha
     } else if (indexOfMax == 0) {
       if(snake.pos.length > 2) {
         snake.vel.x = scl;
@@ -447,7 +221,167 @@ class Controller {
         }
       }
     }
-    pressedKey = true;
+  }
+
+  // Aquí se calcula la distancia en todas las ocho direcciones a la serpiente
+  public float[] frame(Snake snake) {
+    float[] vision = new float[24];
+    //Izquierda
+    float[] tempValues = lookInDirection(new PVector(-scl, 0), snake);
+    vision[0] = tempValues[0];
+    vision[1] = tempValues[1];
+    vision[2] = tempValues[2];
+    //Izquierda/arriba
+    tempValues = lookInDirection(new PVector(-scl, -scl), snake);
+    vision[3] = tempValues[0];
+    vision[4] = tempValues[1];
+    vision[5] = tempValues[2];
+    //Arriba
+    tempValues = lookInDirection(new PVector(0, -scl), snake);
+    vision[6] = tempValues[0];
+    vision[7] = tempValues[1];
+    vision[8] = tempValues[2];
+    //Arriba/derecha
+    tempValues = lookInDirection(new PVector(scl, -scl), snake);
+    vision[9] = tempValues[0];
+    vision[10] = tempValues[1];
+    vision[11] = tempValues[2];
+    //Derecha
+    tempValues = lookInDirection(new PVector(scl, 0), snake);
+    vision[12] = tempValues[0];
+    vision[13] = tempValues[1];
+    vision[14] = tempValues[2];
+    //Derecha/abajo
+    tempValues = lookInDirection(new PVector(scl, scl), snake);
+    vision[15] = tempValues[0];
+    vision[16] = tempValues[1];
+    vision[17] = tempValues[2];
+    //Abajo
+    tempValues = lookInDirection(new PVector(0, scl), snake);
+    vision[18] = tempValues[0];
+    vision[19] = tempValues[1];
+    vision[20] = tempValues[2];
+    //Abajo/izquierda
+    tempValues = lookInDirection(new PVector(-scl, scl), snake);
+    vision[21] = tempValues[0];
+    vision[22] = tempValues[1];
+    vision[23] = tempValues[2];
+
+    return vision;
+  }
+
+  public float[] lookInDirection(PVector direction, Snake cSnake) {
+
+    // Crear un arreglo temporal para tener los valores que van a ser pasados al arreglo de visión principal
+    float[] visionInDirection = new float[3];
+
+    PVector position = new PVector(cSnake.pos[0].x, cSnake.pos[0].y);//La posición desde la que estamos buscando comida, cola o pared
+    boolean foodIsFound = false;//verdad si la comida ha sido encontrada en la dirección mirada
+    boolean tailIsFound = false;//verdad si la cola ha sido encontrada en la dirección mirada
+    float distance = 0;
+    // Moverse una vez en la dirección deseada antes de empezar
+    position.add(direction);
+    distance +=1;
+
+    // Mirar en la dirección hasta llegar a una pared
+    while (!(position.x < 0 || position.y < 0 || position.x >= horsqrs*scl || position.y >= versqrs*scl)) {
+
+      // Buscar comida en la posición
+      if(cSnake.index == -1) {
+        if (!foodIsFound && position.x == population.showoffFood.pos.x && position.y == population.showoffFood.pos.y) {
+          visionInDirection[0] = 1;
+          foodIsFound = true; // Si ya encontró la comida no revisar
+        }
+      } else {
+        if (!foodIsFound && position.x == foods.foods[cSnake.index].pos.x && position.y == foods.foods[cSnake.index].pos.y) {
+          visionInDirection[0] = 1;
+          foodIsFound = true; // Si ya encontró la comida no revisar
+        }
+      }
+
+      // Buscar la cola en la posición
+      if (!tailIsFound && cSnake.collidedBody(position.x, position.y)) {
+        visionInDirection[1] = 1/distance;
+        tailIsFound = true; // Si ya encontró la cola no revisar
+      }
+
+      // Seguir buscando en la dirección
+      position.add(direction);
+      distance +=1;
+    }
+
+    // Establecer la distancia a la pared
+    visionInDirection[2] = 1/distance;
+
+    return visionInDirection;
+  }
+}
+// Clase con la comida, nada especial
+class Food {
+  PVector pos = new PVector(floor(random(horsqrs))*scl, floor(random(versqrs))*scl);
+  
+  public void render() {
+    fill(foodcol);
+    noStroke();
+    rect(pos.x + 1, pos.y + 1, scl - 1, scl - 1);
+  }
+  
+  // Si la serpiente atrapa la comida, que aparezca en otra parte
+  public void update(Snake snake) {
+    if(snake.wasInFoodPos()) {
+      boolean match = true;
+      while(match) {
+        match = false;
+        pos.x = floor(random(horsqrs))*scl; 
+        pos.y = floor(random(versqrs))*scl;
+        // Asegurarse de que la nueva posición no esté en el cuerpo de la serpiente
+        for(int i = 0; i < snake.pos.length; i++) {
+          if(pos.x == snake.pos[i].x && pos.y == snake.pos[i].y) {
+            match = true;
+          }      
+        }
+      }
+    }
+  }
+}
+// Todas las comidas para todas las serpientes entrenándose en una gen.
+class Foods {
+  Food[] foods = new Food[population.gens.get(population.cg).ns];
+
+  Foods() {
+    for (int i = 0; i < foods.length; ++i) {
+      foods[i] = new Food();
+    }
+  }
+
+
+  public void update() {
+    Generation gen = population.gens.get(population.cg);
+    for(int i = 0; i < foods.length; ++i) {
+      foods[i].update(gen.snakes[i]); // actualizar la posición de todas las comidas
+      if(i == population.cshowfI && !gen.showingBestSnake) {
+        foods[i].render(); // pero solo mostrar la comida de la serpiente que se está mostrando
+      }
+    }
+  }
+
+  public void restart() {
+    for (int i = 0; i < foods.length; ++i) {
+      foods[i] = new Food();
+    }
+  }
+}
+class Generation {
+  boolean showingBestSnake = false;
+  int ns = 2000; // Número de serpientes
+  Snake[] snakes = new Snake[ns];
+  int cs; // Serpiente actual (current snake)
+
+  Generation() {
+    for (int i = 0; i < snakes.length; ++i) {
+      snakes[i] = new Snake(i);
+    }
+    cs = 0;
   }
 }
 class Matrix {
@@ -909,11 +843,13 @@ class NeuralNet {
     woh.fromArray(wohArr);
   }
 }
+/* Desde esta clase se controlan todas las serpientes en la población, y se
+   ejecuta el algoritmo genético. */
 class Population {
   ArrayList<Generation> gens;
   int cg;
   int cshowfI;
-  Snake showoff;
+  Snake showoff; // showoff es la mejor serpiente del grupo siendo mostrada
   Food showoffFood;
   long lastAvgFitness = 0;
   int snakesRemaining = 0;
@@ -924,65 +860,52 @@ class Population {
     cg = 0;
   }
 
+  // Desde aquí se mueven todas las serpientes
   public void update() {
-    boolean currentShowoff = false;
+    boolean showingOneSelected = false;
     boolean oneAlive = false;
-    Generation gen = gens.get(cg);
+    Generation gen = gens.get(cg); // obtener número ede generación actual o current gen (cg)
 
-    snakesRemaining = 0;
+    snakesRemaining = 0; // serpientes restantes
     
+    // Ciclo de todas las serpientes vivas
     for (int i = 0; i < gen.snakes.length; ++i) {
-      if(gen.snakes[i].alive) {
+      if(gen.snakes[i].alive) { // Si la serpiente aún está viva
         
         snakesRemaining += 1;
         oneAlive = true;
-        gen.snakes[i].update();
-        if(renderingAll) {
-          gen.snakes[i].render();
+        gen.snakes[i].update(); // Actualizar la posición de la serpiente
+        if(renderingAll) { // Y si está el modo mostrar todas las serpientes
+          gen.snakes[i].render(); // Renderizar cada una
           currentScore = 0;
-        } else {
-          if(!currentShowoff) {
-            currentShowoff = true;
+        } else { // Pero si solo se está mostrando una
+          if(!showingOneSelected) { // Mostrar la primera que encuentre viva
+            showingOneSelected = true;
             cshowfI = i;
             gen.snakes[i].render();
-            currentScore = gen.snakes[i].relLength - 1;
+            currentScore = gen.snakes[i].pos.length - 1;
           }
         }
-        controller.play(gen.snakes[i]);
-      }
-    }
-    
-    //Different runs
-    for(int ii = 0; ii < gen.inRun.length; ii++) {
-      if(!oneAlive && !gen.inRun[ii]) { 
-        for(int i = 0; i < gen.snakes.length; i++) {
-          gen.snakes[i].lifetime = 0;
-          gen.snakes[i].relLength = 1;
-          gen.snakes[i].alive = true;
-          gen.snakes[i].pos = new PVector[1];
-          gen.snakes[i].prevHead = new PVector(0, 0);
-          gen.snakes[i].pos[0] = new PVector(scl*floor(horsqrs/2), scl*floor(versqrs/2));
-          gen.snakes[i].startVel();
-        }
-        gen.inRun[ii] = true;
-        oneAlive = true;
+        controller.play(gen.snakes[i]); // Aquí se usa la I.A. para elegir el siguiente movimiento de cada serpiente
       }
     }
 
-    // This logic is to display the best
-    if(!oneAlive && !gens.get(cg).showingBestSnake) {
-      chooseBestSnake();
+    // Lógica usada para mostrar la mejor serpiente
+    if(!oneAlive && !gens.get(cg).showingBestSnake) { // Si no queda ninguna serpiente viva y actualmente no se ha elegido la mejor serpiente...
+      chooseBestSnakeAndGetAvgFitness(); // ...elegir la mejor y calcular el fitness promedio (avg.) de la gen.
     }
-    if(!oneAlive && gens.get(cg).showingBestSnake) {
-      playBestSnake();
+    if(!oneAlive && gens.get(cg).showingBestSnake) { // Si ya se eligió la mejor...
+      playBestSnake(); // ...jugar normal con la mejor. Cuando la serpiente muere se ejecuta el algo. gen.
     }
   }
 
-  public void chooseBestSnake() {
-    showoff = new Snake(-1, 1);
+  // Aquí se elige la mejor serpiente y se actualiza el fitness promedio de la gen.
+  public void chooseBestSnakeAndGetAvgFitness() {
+    showoff = new Snake(-1);
     showoffFood = new Food();
     double bestFitness = 0;
     lastAvgFitness = 0;
+    // La mejor serpiente sale del fitness
     for (Snake snake : gens.get(cg).snakes) {
       lastAvgFitness += snake.fitness;
       if(snake.fitness > bestFitness) {
@@ -990,43 +913,49 @@ class Population {
         showoff.brain = snake.brain.clone();
       }
     }
-    lastAvgFitness = lastAvgFitness/gens.get(cg).ns;
+    lastAvgFitness = lastAvgFitness/gens.get(cg).ns; //ns es number of snakes
     gens.get(cg).showingBestSnake = true;
   }
 
+  // Se juega con la mejor serpiente normal
   public void playBestSnake() {
     showoff.update();
     showoff.render();
-    currentScore = showoff.relLength - 1;
+    currentScore = showoff.pos.length - 1;
     controller.play(showoff);
-    // println(controller.frame(showoff));
-    if(!showoff.alive) {
-      changeGen();
+    if(!showoff.alive) { // Y cuando se muere...
+      changeGen(); // ...se ejecuta el cambio de generación (esta línea es importante porque aquí se activa el algo. gen.)
     }
     showoffFood.update(showoff);
     showoffFood.render();
   }
 
+  // Este es el cambio de generación. Aquí se ejecuta el algoritmo genético
   public void changeGen() {
     foods.restart();
     Generation oldGen = gens.get(cg);
     float totFitness = 0;
 
     for(Snake snake : oldGen.snakes) {
-      totFitness = totFitness + snake.fitness;
+      totFitness = totFitness + snake.fitness; // Se obtiene la suma de los fitness de las serpientes de la última gen.
     }
     // println(totFitness);
 
-    cg = cg + 1;
-    gens.add(new Generation());
+    cg = cg + 1; // Aumentar el número de la gen.
+    gens.add(new Generation()); // Añadir la nueva gen. al arreglo
 
     Generation newGen = gens.get(cg);
-    // The brains are produced
-    for(Snake mainSnake : newGen.snakes) {
-      // Choose first parent using probability algorithm
-      Snake firstParent = new Snake(0, 1);
+    // Ahora se producen las serpientes de la nueva gen.
+    for(Snake childSnake : newGen.snakes) { // Para cada una de las serpientes...
+      /* ...se eligen los padres usando las serpientes de la última gen. Para esto
+         se eligen al azar los padres, con cada padre teniendo una probabilidad de ser
+         elegido proporcional a su fitness relativo a la suma total */
+
+      // Se elige el primer padre
+      Snake firstParent = new Snake(0);
       float randomi = random(totFitness);
       float fitnessCount = 0;
+      // Algoritmo de probabilidad
       for(Snake snake : oldGen.snakes) {
         fitnessCount = fitnessCount + snake.fitness;
         if(randomi < fitnessCount) {
@@ -1034,10 +963,11 @@ class Population {
           break;
         }
       }
-      // Choose second parent, also prob. algo.
-      Snake secondParent = new Snake(0, 1);
+      // Se elige el segundo padre
+      Snake secondParent = new Snake(0);
       randomi = random(totFitness);
       fitnessCount = 0;
+      // Algoritmo de probabilidad
       for(Snake snake : oldGen.snakes) {
         fitnessCount = fitnessCount + snake.fitness;
         if(randomi < fitnessCount) {
@@ -1045,43 +975,21 @@ class Population {
           break;
         }
       }
-      // Set brain
-      mainSnake.brain = firstParent.brain.crossover(secondParent.brain);
-      mainSnake.brain.mutate(mutRate);
+      
+      childSnake.brain = firstParent.brain.crossover(secondParent.brain); // Combinar los cerebros de los dos padres
+      childSnake.brain.mutate(mutRate); // Y mutarlo un poco, para añadir variación
     }
 
-    gens.set(cg, newGen);
-    gens.set(cg - 1, null);
-  }
-}
-
-class Generation {
-  boolean showingBestSnake = false;
-  int runs = 1;
-  boolean[] inRun = new boolean[runs - 1];
-  int ns = 2000; //number of snakes
-  Snake[] snakes = new Snake[ns];
-  int cs; //current snake
-
-  Generation() {
-    for (int i = 0; i < inRun.length; i++) {
-      inRun[i] = false;
-    }
-    for (int i = 0; i < snakes.length; ++i) {
-      snakes[i] = new Snake(i, runs);
-    }
-    cs = 0;
+    gens.set(cg, newGen); // set la nueva generación, ya esta estando creada
+    gens.set(cg - 1, null); // Remover la generación anterior, para liberar memoria (esta línea se podría eliminar)
   }
 }
 public class Snake {
-  NeuralNet brain = new NeuralNet(24, 24, 4);
+  NeuralNet brain = new NeuralNet(24, 24, 4); // El cerebro es la red neuronal
   int index;
   int lifetime = 0;
   int incBy = 0;
-  int relLength = 1;
   float fitness = 0;
-  float[] fitnesses;
-  float fitnessExtra = 1;
   int sinceFood = 0;
   float probs = 0;
   boolean alive = true;
@@ -1093,13 +1001,9 @@ public class Snake {
   PVector prevHead = new PVector(0, 0);
   PVector vel;
 
-  public Snake (int indexi, int runs) {
-    fitnesses = new float[runs];
-    for(int i = 0; i < runs; i++) {
-      fitnesses[i] = 0;
-    }
+  public Snake (int indexi) {
     if(indexi == -1) {
-      isShowoff = true;
+      isShowoff = true; // simple identificador, en caso de que esta sea la serpiente para mostrar
     }
     index = indexi;
     startVel();
@@ -1108,6 +1012,7 @@ public class Snake {
     square(pos[0].x, pos[0].y);
   }
 
+  // Iniciar una velocidad al azar, no siempre en la misma dirección
   public void startVel() {
     float rel = random(4); //randomVel = rel
     vel = new PVector(0, 0);
@@ -1119,17 +1024,8 @@ public class Snake {
     lifetime = lifetime + 1;
     prevHead = pos[0].get();
     pos[0].add(vel);
-    if(wasInFoodPos()) {
-      relLength += 1;
-      if(pos.length < 10) {
-        incBy += 1; //increase by when is short
-      } else {
-        incBy += 1; //increase by when is long
-      }
-    }
-    if(incBy > 0) {
-      plusOne();
-      incBy -= 1;
+    if(wasInFoodPos()) { // Si acaba de comer
+      plusOne(); // Aumentar tamaño
     }
     if(!world.isInsideBoundaries(pos[0].x, pos[0].y)) {
       died();
@@ -1140,19 +1036,20 @@ public class Snake {
       }
     }
     sinceFood = sinceFood + 1;
-    if(pos.length < 3 && sinceFood > 120) {
+    if(pos.length < 3 && sinceFood > 120) { // Morir si ha pasado 120 frames sin comer y su tamaño es menor a 3
       died();
-    } else if(pos.length >= 3 && sinceFood > 300) {
+    } else if(pos.length >= 3 && sinceFood > 300) { // Morirs si ha pasado 300 frames sin comer y su tamaño es mayor o igual a 3
       died();
     }
   }
 
   public void render() {
     for(int i = 0; i < pos.length; i++) {
-      square(pos[i].x, pos[i].y);
+      square(pos[i].x, pos[i].y); // dibujar todos los cuadrados
     }
   }
 
+  // Mover la serpiente
   public void move() {
     PVector previous = prevHead.get();
     PVector previousCopy = prevHead.get(); 
@@ -1163,7 +1060,9 @@ public class Snake {
     }
   }
 
+  // Comprobar si la serpiente estuvo en la posición de la comida
   public boolean wasInFoodPos() {
+    // Recordar que showoff es la mejor serpiente del grupo siendo mostrada
     if(!isShowoff) {
       if(pos[0].x == foods.foods[index].pos.x && pos[0].y == foods.foods[index].pos.y) {
         return true;
@@ -1176,10 +1075,8 @@ public class Snake {
     return false;
   }
 
+  // Aumentar el tamaño de la serpiente
   public void plusOne() {
-    if(sinceFood != 0) {
-      fitnessExtra += sinceFood;
-    }
     sinceFood = 0;
     if(pos.length == 1) {
       pos = (PVector[])append(pos, new PVector(prevHead.x, prevHead.y));
@@ -1188,23 +1085,15 @@ public class Snake {
     }
   }
   
+  // Morir y calcular el fitness
   public void died() {
     alive = false;
     justDied = true;
-    for(int i = 0; i < fitnesses.length; i++) {
-      if(fitnesses[i] == 0) {
-        if(relLength < 10) {
-          fitnesses[i] = lifetime*lifetime*floor(pow(2, relLength));
-        } else {
-          fitnesses[i] = lifetime*lifetime*floor(pow(2, 10))*(relLength - 9);
-        }
-        break;
-      }
+    if(pos.length < 10) { // pos.length es el tamaño de la serpiente
+      fitness = lifetime*lifetime*floor(pow(2, pos.length));
+    } else {
+      fitness = lifetime*lifetime*floor(pow(2, 10))*(pos.length - 9);
     }
-    for (float fit : fitnesses) {
-      fitness += fit;
-    }
-    fitness = fitness/fitnesses.length;
 
     pos[0].sub(vel);
   }
@@ -1216,7 +1105,8 @@ public class Snake {
     }
     return false;
   }
-  
+
+  // Comprobar si chocó con el cuerpo
   public boolean collidedBody(float x, float y) {
     for(int i = 2; i < pos.length; i++) {
       if(x == pos[i].x && y == pos[i].y) {
@@ -1225,7 +1115,8 @@ public class Snake {
     }
     return false;
   }
-  
+
+  // Dibujar un cuadrado en las coords. x e y 
   public void square(float x, float y) {
     noStroke();
     fill(snakecol);
@@ -1237,6 +1128,7 @@ class World {
     render();
   }
   
+  // Dibujar cuadrícula normal
   public void render() {
     fill(bgcol);
     noStroke();
@@ -1251,6 +1143,7 @@ class World {
     }
   }
 
+  // Comprobar si las coords. x e y están dentro de los límites
   public boolean isInsideBoundaries(float x, float y) {
     if(x >= scl*horsqrs || x < 0 || y >= scl*versqrs || y < 0) {
       return false;
@@ -1258,6 +1151,7 @@ class World {
     return true;
   }
   
+  // Mostrar el panel de la derecha
   public void renderPanel() {
     pushMatrix();
     translate(width - panelWidth, 0);
@@ -1273,17 +1167,7 @@ class World {
     if(population.gens.get(population.cg).showingBestSnake) {
       text("Showing best snake", 20, 140);
     } else {
-      boolean runInArray = false;
-      for (int i = population.gens.get(population.cg).inRun.length - 1; i > -1; i--) {
-        if(population.gens.get(population.cg).inRun[i]) {
-          text("Generation run " + (i + 2), 20, 140);
-          runInArray = true;
-          break;
-        }
-      }
-      if(!runInArray) {
-        text("Generation run 1", 20, 140);
-      }
+      text("Training", 20, 140);
     }
     text("Score: " + currentScore, 20, 180);
     text("Speed: " + speedText, 20, 220);
@@ -1293,51 +1177,13 @@ class World {
       text("S-D: vary mut. rate", 20, 370);
       text("R: render all snakes", 20, 400);
     }
-    
-    // //Button 1
-    // stroke(0);
-    // if(controller.isHuman) {
-    //   fill(110);
-    // } else {
-    //   fill(200);
-    // }
-    // textSize(20);
-    // rect(20, 180, 70, 30);
-    // fill(0);
-    // textAlign(CENTER, CENTER);
-    // text("Smart", 20 + 70/2, 180 + 30/2 - 3);
-    
-    // //Button 2
-    // stroke(0);
-    // if(controller.isHuman) {
-    //   fill(200);
-    // } else {
-    //   fill(110);
-    // }
-    // textSize(20);
-    // rect(20, 220, 70, 30);
-    // fill(0);
-    // textAlign(CENTER, CENTER);
-    // text("You", 20 + 70/2, 220 + 30/2 - 3);   
-    
+
     popMatrix();
   } 
 }
-
-public void mouseClicked() {
-  float panelX = width - panelWidth;
-  if(mouseX > panelX + 20 && mouseX < panelX + 20 + 70 && mouseY > 180 && mouseY < 180 + 30) {
-    controller.isHuman = false;
-    world.renderPanel();
-  }
-  else if(mouseX > panelX + 20 && mouseX < panelX + 20 + 70 && mouseY > 220 && mouseY < 220 + 30) {
-    controller.isHuman = true;
-    world.renderPanel();
-  }
-}
   public void settings() {  fullScreen(); }
   static public void main(String[] passedArgs) {
-    String[] appletArgs = new String[] { "gensnake" };
+    String[] appletArgs = new String[] { "deepGeneticSnake" };
     if (passedArgs != null) {
       PApplet.main(concat(appletArgs, passedArgs));
     } else {

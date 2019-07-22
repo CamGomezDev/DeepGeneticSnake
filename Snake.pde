@@ -1,12 +1,9 @@
 public class Snake {
-  NeuralNet brain = new NeuralNet(24, 24, 4);
+  NeuralNet brain = new NeuralNet(24, 24, 4); // El cerebro es la red neuronal
   int index;
   int lifetime = 0;
   int incBy = 0;
-  int relLength = 1;
   float fitness = 0;
-  float[] fitnesses;
-  float fitnessExtra = 1;
   int sinceFood = 0;
   float probs = 0;
   boolean alive = true;
@@ -18,13 +15,9 @@ public class Snake {
   PVector prevHead = new PVector(0, 0);
   PVector vel;
 
-  public Snake (int indexi, int runs) {
-    fitnesses = new float[runs];
-    for(int i = 0; i < runs; i++) {
-      fitnesses[i] = 0;
-    }
+  public Snake (int indexi) {
     if(indexi == -1) {
-      isShowoff = true;
+      isShowoff = true; // simple identificador, en caso de que esta sea la serpiente para mostrar
     }
     index = indexi;
     startVel();
@@ -33,6 +26,7 @@ public class Snake {
     square(pos[0].x, pos[0].y);
   }
 
+  // Iniciar una velocidad al azar, no siempre en la misma dirección
   void startVel() {
     float rel = random(4); //randomVel = rel
     vel = new PVector(0, 0);
@@ -44,17 +38,8 @@ public class Snake {
     lifetime = lifetime + 1;
     prevHead = pos[0].get();
     pos[0].add(vel);
-    if(wasInFoodPos()) {
-      relLength += 1;
-      if(pos.length < 10) {
-        incBy += 1; //increase by when is short
-      } else {
-        incBy += 1; //increase by when is long
-      }
-    }
-    if(incBy > 0) {
-      plusOne();
-      incBy -= 1;
+    if(wasInFoodPos()) { // Si acaba de comer
+      plusOne(); // Aumentar tamaño
     }
     if(!world.isInsideBoundaries(pos[0].x, pos[0].y)) {
       died();
@@ -65,19 +50,20 @@ public class Snake {
       }
     }
     sinceFood = sinceFood + 1;
-    if(pos.length < 3 && sinceFood > 120) {
+    if(pos.length < 3 && sinceFood > 120) { // Morir si ha pasado 120 frames sin comer y su tamaño es menor a 3
       died();
-    } else if(pos.length >= 3 && sinceFood > 300) {
+    } else if(pos.length >= 3 && sinceFood > 300) { // Morirs si ha pasado 300 frames sin comer y su tamaño es mayor o igual a 3
       died();
     }
   }
 
   void render() {
     for(int i = 0; i < pos.length; i++) {
-      square(pos[i].x, pos[i].y);
+      square(pos[i].x, pos[i].y); // dibujar todos los cuadrados
     }
   }
 
+  // Mover la serpiente
   void move() {
     PVector previous = prevHead.get();
     PVector previousCopy = prevHead.get(); 
@@ -88,7 +74,9 @@ public class Snake {
     }
   }
 
+  // Comprobar si la serpiente estuvo en la posición de la comida
   boolean wasInFoodPos() {
+    // Recordar que showoff es la mejor serpiente del grupo siendo mostrada
     if(!isShowoff) {
       if(pos[0].x == foods.foods[index].pos.x && pos[0].y == foods.foods[index].pos.y) {
         return true;
@@ -101,10 +89,8 @@ public class Snake {
     return false;
   }
 
+  // Aumentar el tamaño de la serpiente
   void plusOne() {
-    if(sinceFood != 0) {
-      fitnessExtra += sinceFood;
-    }
     sinceFood = 0;
     if(pos.length == 1) {
       pos = (PVector[])append(pos, new PVector(prevHead.x, prevHead.y));
@@ -113,23 +99,15 @@ public class Snake {
     }
   }
   
+  // Morir y calcular el fitness
   void died() {
     alive = false;
     justDied = true;
-    for(int i = 0; i < fitnesses.length; i++) {
-      if(fitnesses[i] == 0) {
-        if(relLength < 10) {
-          fitnesses[i] = lifetime*lifetime*floor(pow(2, relLength));
-        } else {
-          fitnesses[i] = lifetime*lifetime*floor(pow(2, 10))*(relLength - 9);
-        }
-        break;
-      }
+    if(pos.length < 10) { // pos.length es el tamaño de la serpiente
+      fitness = lifetime*lifetime*floor(pow(2, pos.length));
+    } else {
+      fitness = lifetime*lifetime*floor(pow(2, 10))*(pos.length - 9);
     }
-    for (float fit : fitnesses) {
-      fitness += fit;
-    }
-    fitness = fitness/fitnesses.length;
 
     pos[0].sub(vel);
   }
@@ -141,7 +119,8 @@ public class Snake {
     }
     return false;
   }
-  
+
+  // Comprobar si chocó con el cuerpo
   boolean collidedBody(float x, float y) {
     for(int i = 2; i < pos.length; i++) {
       if(x == pos[i].x && y == pos[i].y) {
@@ -150,7 +129,8 @@ public class Snake {
     }
     return false;
   }
-  
+
+  // Dibujar un cuadrado en las coords. x e y 
   void square(float x, float y) {
     noStroke();
     fill(snakecol);

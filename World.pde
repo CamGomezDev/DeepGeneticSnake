@@ -3,6 +3,7 @@ class World {
     render();
   }
   
+  // Dibujar cuadrícula normal
   void render() {
     fill(bgcol);
     noStroke();
@@ -17,6 +18,7 @@ class World {
     }
   }
 
+  // Comprobar si las coords. x e y están dentro de los límites
   boolean isInsideBoundaries(float x, float y) {
     if(x >= scl*horsqrs || x < 0 || y >= scl*versqrs || y < 0) {
       return false;
@@ -24,6 +26,7 @@ class World {
     return true;
   }
   
+  // Mostrar el panel de la derecha
   void renderPanel() {
     pushMatrix();
     translate(width - panelWidth, 0);
@@ -39,17 +42,7 @@ class World {
     if(population.gens.get(population.cg).showingBestSnake) {
       text("Showing best snake", 20, 140);
     } else {
-      boolean runInArray = false;
-      for (int i = population.gens.get(population.cg).inRun.length - 1; i > -1; i--) {
-        if(population.gens.get(population.cg).inRun[i]) {
-          text("Generation run " + (i + 2), 20, 140);
-          runInArray = true;
-          break;
-        }
-      }
-      if(!runInArray) {
-        text("Generation run 1", 20, 140);
-      }
+      text("Training", 20, 140);
     }
     text("Score: " + currentScore, 20, 180);
     text("Speed: " + speedText, 20, 220);
@@ -59,45 +52,7 @@ class World {
       text("S-D: vary mut. rate", 20, 370);
       text("R: render all snakes", 20, 400);
     }
-    
-    // //Button 1
-    // stroke(0);
-    // if(controller.isHuman) {
-    //   fill(110);
-    // } else {
-    //   fill(200);
-    // }
-    // textSize(20);
-    // rect(20, 180, 70, 30);
-    // fill(0);
-    // textAlign(CENTER, CENTER);
-    // text("Smart", 20 + 70/2, 180 + 30/2 - 3);
-    
-    // //Button 2
-    // stroke(0);
-    // if(controller.isHuman) {
-    //   fill(200);
-    // } else {
-    //   fill(110);
-    // }
-    // textSize(20);
-    // rect(20, 220, 70, 30);
-    // fill(0);
-    // textAlign(CENTER, CENTER);
-    // text("You", 20 + 70/2, 220 + 30/2 - 3);   
-    
+
     popMatrix();
   } 
-}
-
-void mouseClicked() {
-  float panelX = width - panelWidth;
-  if(mouseX > panelX + 20 && mouseX < panelX + 20 + 70 && mouseY > 180 && mouseY < 180 + 30) {
-    controller.isHuman = false;
-    world.renderPanel();
-  }
-  else if(mouseX > panelX + 20 && mouseX < panelX + 20 + 70 && mouseY > 220 && mouseY < 220 + 30) {
-    controller.isHuman = true;
-    world.renderPanel();
-  }
 }

@@ -17,15 +17,15 @@
       },
       "args": [
     "--force",
-		"--sketch=C:/Users/User/Documents/Processing/stuff/gensnake",
-		"--output=C:/Users/User/Documents/Processing/stuff/gensnake/out",
+		"--sketch=D:/User/Codex/Processing/stuff/deepGeneticSnake",
+		"--output=D:/User/Codex/Processing/stuff/deepGeneticSnake/out",
 		"--run"
 	  ],
       "windows": {
         "args": [
           "--force",
-          "--sketch=C:/Users/User/Documents/Processing/stuff/gensnake",
-          "--output=C:/Users/User/Documents/Processing/stuff/gensnake/out",
+          "--sketch=D:/User/Codex/Processing/stuff/deepGeneticSnake",
+          "--output=D:/User/Codex/Processing/stuff/deepGeneticSnake/out",
           "--run"
         ]
       }
