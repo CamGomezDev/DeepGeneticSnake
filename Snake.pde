@@ -104,9 +104,9 @@ public class Snake {
     alive = false;
     justDied = true;
     if(pos.length < 10) { // pos.length es el tamaño de la serpiente
-      fitness = lifetime*lifetime*floor(pow(2, pos.length));
+      fitness = lifetime*lifetime*floor(pow(2, pos.length)); // función fitness 1
     } else {
-      fitness = lifetime*lifetime*floor(pow(2, 10))*(pos.length - 9);
+      fitness = lifetime*lifetime*floor(pow(2, 10))*(pos.length - 9); // función fitness 2
     }
 
     pos[0].sub(vel);
