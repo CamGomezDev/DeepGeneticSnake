@@ -2,7 +2,7 @@
 
 Este repositorio acompaña este video: https://www.youtube.com/watch?v=k2JqH5j2VYo. 
 
-El framework de Java usado es Processing y el archivo principal es `deepGeneticSnake.pde`. He comentado el repositorio tan bien como he podido.
+El framework de Java usado es Processing y el archivo principal es `DeepGeneticSnake.pde`. He comentado el repositorio tan bien como he podido.
 
 ![alt text](https://github.com/dokasov/deepGeneticSnake/blob/master/img/git.png)
 
