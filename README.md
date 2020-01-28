@@ -1,13 +1,13 @@
-# I.A. de Snake con Algoritmo Genético y Redes Neuronales
+# AI  for Snake with a Genetic Algorithm and Neural Networks
 
-Este repositorio acompaña este video: https://www.youtube.com/watch?v=k2JqH5j2VYo. 
+This repository accompanies this video: https://www.youtube.com/watch?v=k2JqH5j2VYo. 
 
-El framework de Java usado es Processing y el archivo principal es `DeepGeneticSnake.pde`. He comentado el repositorio tan bien como he podido.
+The Java framework used is Processing and the main file is `DeepGeneticSnake.pde`. I've made comments to the code (**in spanish**) as well as I could.
 
 ![alt text](https://github.com/dokasov/deepGeneticSnake/blob/master/img/git.png)
 
-Para ejecutar es necesario tener Processing instalado. Después de esto, solo se debe descargar o clonar el repositorio, abrirlo desde Processing y correrlo. Ahí aparecen las teclas para controlar la simulación. Las clases `NeuralNet.pde` y `Matrix.pde` fueron sacadas del código que acompaña este video de Code Bullet https://www.youtube.com/watch?v=3bhP7zulFfY, y por eso tienen comentarios en inglés.
+To execute it's necessary to have Processing installed. After this, the repository must be just downloaded or cloned, opened from Processing and then run. The keys to control the simulation then show up. The classes `NeuralNet.pde` and `Matrix.pde` were gotten from the code that accompanies this Code Bullet video https://www.youtube.com/watch?v=3bhP7zulFfY.
 
-La I.A. consiste en un algoritmo genético que, en cada generación, crea 2000 serpientes y después elige las mejores y combina sus cerebros para la siguiente generación. Mejores, en este caso, se definen como las que hayan sacado un fitness más alto, en donde la función fitness está definida en `Snake.pde` en la función `died()`. Los cerebros son las redes neuronales, y combinarlos significa crear uno nuevo con unos nodos copiados de uno y otros de otro, mutando unos de ellos para generar variedad.
+The AI consists in a genetic algorithm that, in each generation, create 2000 snakes and then chooses the best ones and combines its brain for the next generation. The best ones, in this case, are defined as the ones that got a highest fitness, where the fitness function is defined in `Snake.pde` in the function `died()`. The brains are the neural networks, and to combine them means to create a new one with some nodes copied from one some others from other, mutating some of them to generate variety.
 
-Si algo no se entiende me lo pueden hacer saber en los Issues.
+If something is not understood you can let me know in the Issues.
